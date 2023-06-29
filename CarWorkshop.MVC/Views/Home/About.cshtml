@@ -1,0 +1,14 @@
+﻿@model About
+
+<h1>@Model.Title</h1>
+
+<div class="alert alert-primary">@Model.Description</div>
+
+<p>Zainteresowania:</p>
+
+<ul>
+@foreach (var tag in Model.Tags)
+{
+    <li>@tag</li>
+}
+</ul>

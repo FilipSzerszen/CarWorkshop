@@ -18,6 +18,11 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult Create()
+    {
+        return View();
+    }
+
     public IActionResult Privacy()
     {
         var model = new List<Person>()

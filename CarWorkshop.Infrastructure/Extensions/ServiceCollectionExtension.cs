@@ -26,11 +26,13 @@ namespace CarWorkshop.Infrastructure.Extensions
                 {
                     options.Stores.MaxLengthForKeys = 450;
                 })
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<CarWorkshopDbContext>();
 
             services.AddScoped<CarWorkshopSeeder>();
 
             services.AddScoped<ICarWorkshopRepository, CarWorkshopRepository>();
+            services.AddScoped<ICarWorkshopServiceRepository, CarWorkshopServiceRepository>();
         }
     }
 }

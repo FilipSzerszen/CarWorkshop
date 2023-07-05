@@ -4,9 +4,13 @@ using CarWorkshop.Application.CarWorkshop.Commands.CreateCarWorkshop;
 using CarWorkshop.Application.CarWorkshop.Commands.EditCarWorkshop;
 using CarWorkshop.Application.CarWorkshop.Queries.GetAllCarWorkshops;
 using CarWorkshop.Application.CarWorkshop.Queries.GetCarWorkshopsByEncodedName;
+using CarWorkshop.Application.CarWorkshopService.Commands;
+using CarWorkshop.MVC.Extensions;
+using CarWorkshop.MVC.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace CarWorkshop.MVC.Controllers
 {
@@ -27,7 +31,7 @@ namespace CarWorkshop.MVC.Controllers
             return View(carWorkshops);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Owner, Admin")]
         public IActionResult Create()
         {
             return View();
@@ -45,20 +49,47 @@ namespace CarWorkshop.MVC.Controllers
         {
             var dto = await _mediator.Send(new GetCarWorkshopByEncodedNameQuery(encodedName));
 
+            if(!dto.IsEditable)
+            {
+                return RedirectToAction("NoAccess", "Home");
+            }
+
             EditCarWorkshopCommand model = _mapper.Map<EditCarWorkshopCommand>(dto);
 
             return View(model);
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Owner, Admin")]
+        [Route("CarWorkshop/CarWorkshopService")]
+        public async Task<IActionResult> CreateCarWorkshopService(CreateCarWorkshopServiceCommand command)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _mediator.Send(command);
+
+            return Ok();
+        }
+
+
+        
+
+        [HttpPost]
+        [Authorize(Roles = "Owner, Admin")]
         public async Task<IActionResult> Create(CreateCarWorkshopCommand command)
         {
             if (!ModelState.IsValid)
             {
                 return View(command);
             }
+
             await _mediator.Send(command);
+
+            this.SetNotification("success", $"Created carworkshop: {command.Name}");
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -71,6 +102,9 @@ namespace CarWorkshop.MVC.Controllers
                 return View(command);
             }
             await _mediator.Send(command);
+
+            this.SetNotification("success", $"Carworkshop {command.Name} corectly edited");
+
             return RedirectToAction(nameof(Index));
         }
     }

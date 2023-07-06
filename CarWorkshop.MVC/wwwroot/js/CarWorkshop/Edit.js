@@ -1,4 +1,8 @@
 $(document).ready(function () {
+
+    LoadCarWorkshopServices()
+
+
     $("#createCarWorkshopServiceModal form").submit(function (event) {
         event.preventDefault();
 
